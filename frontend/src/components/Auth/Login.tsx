@@ -54,6 +54,11 @@ const Login: React.FC = () => {
             />
           </div>
           {error && <div className="error">{error}</div>}
+          <div style={{ textAlign: 'right', marginBottom: '10px' }}>
+            <Link to="/forgot-password" style={{ fontSize: '14px', color: '#007bff', textDecoration: 'none' }}>
+              Forgot Password?
+            </Link>
+          </div>
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>

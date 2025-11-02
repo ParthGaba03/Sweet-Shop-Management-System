@@ -58,6 +58,17 @@ class TokenWithUser(Token):
 class TokenData(BaseModel):
     username: Optional[str] = None
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=8)
+
+class PasswordResetResponse(BaseModel):
+    message: str
+    reset_token: Optional[str] = None  # For development/testing - remove in production
+
 class SweetBase(BaseModel):
     name: str
     category: str

@@ -31,3 +31,8 @@ def decode_access_token(token: str):
     except JWTError:
         return None
 
+def generate_reset_token() -> str:
+    """Generate a secure random token for password reset"""
+    import secrets
+    return secrets.token_urlsafe(32)
+
