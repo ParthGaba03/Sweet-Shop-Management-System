@@ -245,23 +245,20 @@ View detailed coverage report in `backend/htmlcov/index.html`
 
 ## 📸 Screenshots
 
-### Authentication Flow
-![Login Page](screenshots/login.png)
-*Clean and professional login interface*
+Screenshots coming soon! The application includes:
 
-![Registration](screenshots/register.png)
-*Role-based user registration with validation*
+### Features to Capture
+- **Login Page** - Clean authentication interface
+- **Registration** - User and admin registration with role selection
+- **Dashboard** - Main view with search, filters, and sweet inventory
+- **Purchase Modal** - Detailed confirmation before purchase
+- **Admin Panel** - Full CRUD operations for sweets management
+- **Purchase History** - User purchase tracking and admin analytics
+- **Forgot Password** - Secure password reset flow
 
-### Main Dashboard
-![Dashboard](screenshots/dashboard.png)
-*Beautiful dashboard with search and filters*
+Live application is available at: https://sweet-shop-management-system-snowy.vercel.app
 
-### Admin Features
-![Admin Panel](screenshots/admin.png)
-*Admin view with full CRUD operations*
-
-![Purchase History](screenshots/purchase-history.png)
-*Detailed purchase history and analytics*
+> **Note**: Screenshots will be added to showcase the professional UI design and user experience.
 
 ## 🤖 My AI Usage
 
