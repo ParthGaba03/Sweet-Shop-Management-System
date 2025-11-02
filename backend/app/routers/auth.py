@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.database import get_db, settings
 from app.models import User
 from app.schemas import UserCreate, UserResponse, Token, TokenWithUser, ForgotPasswordRequest, ResetPasswordRequest, PasswordResetResponse
@@ -96,7 +96,7 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     # Generate reset token
     reset_token = generate_reset_token()
     user.reset_token = reset_token
-    user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+    user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)  # Token valid for 1 hour
     db.commit()
     
     # Always return token in response so frontend can automatically show reset form
@@ -118,14 +118,24 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
         )
     
     # Check if token is expired
-    if user.reset_token_expires and user.reset_token_expires < datetime.utcnow():
-        user.reset_token = None
-        user.reset_token_expires = None
-        db.commit()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Reset token has expired. Please request a new one."
-        )
+    # Ensure both datetimes are timezone-aware for comparison
+    current_time = datetime.now(timezone.utc)
+    if user.reset_token_expires:
+        # If reset_token_expires is timezone-naive, make it timezone-aware
+        if user.reset_token_expires.tzinfo is None:
+            # Assume UTC if naive
+            token_expires = user.reset_token_expires.replace(tzinfo=timezone.utc)
+        else:
+            token_expires = user.reset_token_expires
+        
+        if token_expires < current_time:
+            user.reset_token = None
+            user.reset_token_expires = None
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Reset token has expired. Please request a new one."
+            )
     
     # Validate password
     password_bytes = request.new_password.encode('utf-8')
