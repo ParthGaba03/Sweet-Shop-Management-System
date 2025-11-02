@@ -305,12 +305,12 @@ const Dashboard: React.FC = () => {
         {showHistory && (
           <div className="card" style={{ marginBottom: '24px' }}>
             <h2 style={{ marginBottom: '20px', color: '#333' }}>
-              {isAdmin() ? '📊 All Users Purchase History' : '📦 Your Purchase History'}
+              {isAdmin() ? '📊 My Sweets Purchase History' : '📦 Your Purchase History'}
             </h2>
             {(isAdmin() ? adminPurchaseHistory : purchaseHistory).length === 0 ? (
               <p style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
                 {isAdmin() 
-                  ? 'No purchases found. Users will see their purchases here once they start shopping.'
+                  ? 'No purchases found for your sweets yet. Users will see their purchases here once they start shopping your sweets.'
                   : 'No purchases yet. Start shopping to see your history here!'}
               </p>
             ) : (

@@ -70,6 +70,18 @@ async def startup_event():
             
             print("✅ Password reset migration completed")
         
+        # Check if sweets table exists and has created_by_user_id column
+        if inspector.has_table("sweets"):
+            columns = [col['name'] for col in inspector.get_columns("sweets")]
+            
+            # Add created_by_user_id column if it doesn't exist
+            if 'created_by_user_id' not in columns:
+                with engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE sweets ADD COLUMN created_by_user_id INTEGER REFERENCES users(id)"))
+                    print("✅ Added created_by_user_id column to sweets table")
+            
+            print("✅ Sweet ownership migration completed")
+        
     except Exception as e:
         print(f"⚠️ Warning: Could not create tables/migrations on startup: {e}")
         print("Tables will be created on first database access")

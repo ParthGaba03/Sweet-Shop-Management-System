@@ -23,8 +23,12 @@ class Sweet(Base):
     category = Column(String, nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
     quantity = Column(Integer, default=0, nullable=False)
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Track which admin created this sweet
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Relationship
+    created_by = relationship("User", foreign_keys=[created_by_user_id])
 
 class PurchaseHistory(Base):
     __tablename__ = "purchase_history"

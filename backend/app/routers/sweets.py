@@ -21,7 +21,9 @@ def create_sweet(
     current_user: User = Depends(require_admin)
 ):
     print(f"✅ create_sweet: User {current_user.username} (role: {current_user.role}) creating sweet: {sweet_data.name}", flush=True)
-    db_sweet = Sweet(**sweet_data.dict())
+    sweet_dict = sweet_data.dict()
+    sweet_dict['created_by_user_id'] = current_user.id  # Track which admin created this sweet
+    db_sweet = Sweet(**sweet_dict)
     db.add(db_sweet)
     db.commit()
     db.refresh(db_sweet)
@@ -149,6 +151,13 @@ def update_sweet(
             detail="Sweet not found"
         )
     
+    # Check if this sweet was created by a different admin
+    if db_sweet.created_by_user_id and db_sweet.created_by_user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only edit sweets that you created"
+        )
+    
     update_data = sweet_data.dict(exclude_unset=True)
     for field, value in update_data.items():
         if value is not None:
@@ -171,6 +180,13 @@ def delete_sweet(
             detail="Sweet not found"
         )
     
+    # Check if this sweet was created by a different admin
+    if db_sweet.created_by_user_id and db_sweet.created_by_user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete sweets that you created"
+        )
+    
     db.delete(db_sweet)
     db.commit()
     return None
@@ -191,11 +207,21 @@ def get_all_purchase_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
-    """Get purchase history for all users (Admin only)"""
+    """Get purchase history for sweets created by this admin, purchased by regular users only"""
     from sqlalchemy.orm import joinedload
-    purchases = db.query(PurchaseHistory).join(User).order_by(
-        PurchaseHistory.purchased_at.desc()
-    ).all()
+    
+    # Get IDs of all sweets created by this admin
+    admin_sweet_ids = db.query(Sweet.id).filter(
+        Sweet.created_by_user_id == current_user.id
+    ).subquery()
+    
+    # Only get purchases:
+    # 1. Made by regular users (role='user')
+    # 2. Of sweets created by this admin
+    purchases = db.query(PurchaseHistory).join(User).filter(
+        User.role == 'user',
+        PurchaseHistory.sweet_id.in_(db.query(Sweet.id).filter(Sweet.created_by_user_id == current_user.id))
+    ).order_by(PurchaseHistory.purchased_at.desc()).all()
     
     # Convert to AdminPurchaseHistoryResponse format
     result = []
