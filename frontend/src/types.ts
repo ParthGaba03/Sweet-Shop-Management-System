@@ -25,4 +25,16 @@ export interface PurchaseHistory {
   purchased_at: string;
 }
 
+export interface AdminPurchaseHistory {
+  id: number;
+  user_id: number;
+  username: string;
+  sweet_name: string;
+  category: string;
+  price: string;
+  quantity: number;
+  total_price: string;
+  purchased_at: string;
+}
+
 

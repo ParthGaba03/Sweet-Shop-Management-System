@@ -4,7 +4,7 @@ import axios from 'axios';
 import SweetCard from './SweetCard';
 import SweetModal from './SweetModal';
 import PurchaseModal from './PurchaseModal';
-import { Sweet, PurchaseHistory } from '../../types';
+import { Sweet, PurchaseHistory, AdminPurchaseHistory } from '../../types';
 import { getApiUrl } from '../../config';
 import '../Dashboard/Dashboard.css';
 
@@ -23,12 +23,15 @@ const Dashboard: React.FC = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchasingSweet, setPurchasingSweet] = useState<Sweet | null>(null);
   const [purchaseHistory, setPurchaseHistory] = useState<PurchaseHistory[]>([]);
+  const [adminPurchaseHistory, setAdminPurchaseHistory] = useState<AdminPurchaseHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     fetchSweets();
     fetchAllCategories();
-    if (!isAdmin()) {
+    if (isAdmin()) {
+      fetchAdminPurchaseHistory();
+    } else {
       fetchPurchaseHistory();
     }
   }, []);
@@ -97,6 +100,15 @@ const Dashboard: React.FC = () => {
       setPurchaseHistory(response.data);
     } catch (err) {
       console.error('Error fetching purchase history:', err);
+    }
+  };
+
+  const fetchAdminPurchaseHistory = async () => {
+    try {
+      const response = await axios.get(getApiUrl('/api/sweets/admin/purchase-history'));
+      setAdminPurchaseHistory(response.data);
+    } catch (err) {
+      console.error('Error fetching admin purchase history:', err);
     }
   };
 
@@ -239,23 +251,46 @@ const Dashboard: React.FC = () => {
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
           {isAdmin() && (
-            <div className="admin-actions" style={{ borderTop: 'none', paddingTop: 0, margin: 0 }}>
+            <>
+              <div className="admin-actions" style={{ borderTop: 'none', paddingTop: 0, margin: 0 }}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setEditingSweet(null);
+                    setShowModal(true);
+                  }}
+                >
+                  + Add New Sweet
+                </button>
+              </div>
               <button
-                className="btn btn-primary"
+                className="btn"
                 onClick={() => {
-                  setEditingSweet(null);
-                  setShowModal(true);
+                  setShowHistory(!showHistory);
+                  if (!showHistory) {
+                    fetchAdminPurchaseHistory();
+                  }
+                }}
+                style={{
+                  background: showHistory ? '#6c757d' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  padding: '12px 24px'
                 }}
               >
-                + Add New Sweet
+                {showHistory ? 'Hide All Purchases' : 'View All Purchases'}
               </button>
-            </div>
+            </>
           )}
           
           {!isAdmin() && (
             <button
               className="btn"
-              onClick={() => setShowHistory(!showHistory)}
+              onClick={() => {
+                setShowHistory(!showHistory);
+                if (!showHistory) {
+                  fetchPurchaseHistory();
+                }
+              }}
               style={{
                 background: showHistory ? '#6c757d' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: 'white',
@@ -267,18 +302,25 @@ const Dashboard: React.FC = () => {
           )}
         </div>
 
-        {!isAdmin() && showHistory && (
+        {showHistory && (
           <div className="card" style={{ marginBottom: '24px' }}>
-            <h2 style={{ marginBottom: '20px', color: '#333' }}>📦 Your Purchase History</h2>
-            {purchaseHistory.length === 0 ? (
+            <h2 style={{ marginBottom: '20px', color: '#333' }}>
+              {isAdmin() ? '📊 All Users Purchase History' : '📦 Your Purchase History'}
+            </h2>
+            {(isAdmin() ? adminPurchaseHistory : purchaseHistory).length === 0 ? (
               <p style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
-                No purchases yet. Start shopping to see your history here!
+                {isAdmin() 
+                  ? 'No purchases found. Users will see their purchases here once they start shopping.'
+                  : 'No purchases yet. Start shopping to see your history here!'}
               </p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+                      {isAdmin() && (
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#495057' }}>User</th>
+                      )}
                       <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#495057' }}>Date</th>
                       <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#495057' }}>Sweet Name</th>
                       <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#495057' }}>Category</th>
@@ -288,8 +330,13 @@ const Dashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {purchaseHistory.map((purchase) => (
+                    {(isAdmin() ? adminPurchaseHistory : purchaseHistory).map((purchase) => (
                       <tr key={purchase.id} style={{ borderBottom: '1px solid #dee2e6' }}>
+                        {isAdmin() && 'username' in purchase && (
+                          <td style={{ padding: '12px', fontWeight: '500', color: '#667eea' }}>
+                            {(purchase as AdminPurchaseHistory).username}
+                          </td>
+                        )}
                         <td style={{ padding: '12px', color: '#666' }}>
                           {new Date(purchase.purchased_at).toLocaleString()}
                         </td>
@@ -309,16 +356,30 @@ const Dashboard: React.FC = () => {
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot>
-                    <tr style={{ background: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
-                      <td colSpan={5} style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#495057' }}>
-                        Total Spent:
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: '700', color: '#667eea', fontSize: '18px' }}>
-                        ${purchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
-                      </td>
-                    </tr>
-                  </tfoot>
+                  {!isAdmin() && (
+                    <tfoot>
+                      <tr style={{ background: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+                        <td colSpan={isAdmin() ? 6 : 5} style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#495057' }}>
+                          Total Spent:
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: '700', color: '#667eea', fontSize: '18px' }}>
+                          ${purchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  )}
+                  {isAdmin() && (
+                    <tfoot>
+                      <tr style={{ background: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+                        <td colSpan={6} style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#495057' }}>
+                          Total Revenue:
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: '700', color: '#667eea', fontSize: '18px' }}>
+                          ${adminPurchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  )}
                 </table>
               </div>
             )}

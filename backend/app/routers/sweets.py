@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models import Sweet, PurchaseHistory
 from app.schemas import (
     SweetCreate, SweetUpdate, SweetResponse,
-    PurchaseRequest, RestockRequest, PurchaseHistoryResponse
+    PurchaseRequest, RestockRequest, PurchaseHistoryResponse, AdminPurchaseHistoryResponse
 )
 from app.dependencies import get_current_user, require_admin
 from app.models import User
@@ -185,4 +185,32 @@ def get_purchase_history(
         PurchaseHistory.user_id == current_user.id
     ).order_by(PurchaseHistory.purchased_at.desc()).all()
     return purchases
+
+@router.get("/admin/purchase-history", response_model=List[AdminPurchaseHistoryResponse])
+def get_all_purchase_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Get purchase history for all users (Admin only)"""
+    from sqlalchemy.orm import joinedload
+    purchases = db.query(PurchaseHistory).join(User).order_by(
+        PurchaseHistory.purchased_at.desc()
+    ).all()
+    
+    # Convert to AdminPurchaseHistoryResponse format
+    result = []
+    for purchase in purchases:
+        user = db.query(User).filter(User.id == purchase.user_id).first()
+        result.append({
+            "id": purchase.id,
+            "user_id": purchase.user_id,
+            "username": user.username if user else "Unknown",
+            "sweet_name": purchase.sweet_name,
+            "category": purchase.category,
+            "price": purchase.price,
+            "quantity": purchase.quantity,
+            "total_price": purchase.total_price,
+            "purchased_at": purchase.purchased_at
+        })
+    return result
 

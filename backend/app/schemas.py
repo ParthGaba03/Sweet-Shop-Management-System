@@ -109,3 +109,17 @@ class PurchaseHistoryResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class AdminPurchaseHistoryResponse(BaseModel):
+    id: int
+    user_id: int
+    username: str
+    sweet_name: str
+    category: str
+    price: Decimal
+    quantity: int
+    total_price: Decimal
+    purchased_at: datetime
+    
+    class Config:
+        from_attributes = True
