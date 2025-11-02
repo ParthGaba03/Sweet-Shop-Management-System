@@ -246,7 +246,7 @@ View detailed coverage report in `backend/htmlcov/index.html`
 ## 📸 Screenshots
 
 ### Authentication & Registration
-![Registration](screenshots/05-register.png)
+![Registration](screenshots/05-registration.png)
 *User and admin registration with role selection*
 
 ### User Dashboard
