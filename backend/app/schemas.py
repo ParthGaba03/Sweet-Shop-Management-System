@@ -14,6 +14,7 @@ class UserCreate(UserBase):
     to check the BYTE length of the password.
     """
     password: str = Field(..., min_length=8) # <-- Removed max_length=72
+    role: Optional[str] = Field(default="user", description="User role: 'user' or 'admin' (for testing purposes)")
 
     @field_validator('password')
     @classmethod
@@ -30,6 +31,14 @@ class UserCreate(UserBase):
             
         # If valid, return the original password string
         return v
+    
+    @field_validator('role')
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        """Validate that role is either 'user' or 'admin'."""
+        if v and v not in ['user', 'admin']:
+            raise ValueError('Role must be either "user" or "admin"')
+        return v or "user"
 
 class UserResponse(UserBase):
     id: int

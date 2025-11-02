@@ -31,11 +31,13 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     
     # Create new user
     hashed_password = get_password_hash(user_data.password)
+    # Use role from user_data if provided, otherwise default to "user"
+    user_role = user_data.role if hasattr(user_data, 'role') and user_data.role else "user"
     db_user = User(
         username=user_data.username,
         email=user_data.email,
         hashed_password=hashed_password,
-        role="user"
+        role=user_role
     )
     db.add(db_user)
     db.commit()
