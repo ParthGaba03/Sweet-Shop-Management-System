@@ -33,12 +33,45 @@ app.include_router(sweets.router, prefix="/api/sweets", tags=["sweets"])
 
 @app.on_event("startup")
 async def startup_event():
-    """Create database tables on startup"""
+    """Create database tables and run migrations on startup"""
     try:
         Base.metadata.create_all(bind=engine)
         print("✅ Database tables created/verified successfully")
+        
+        # Run migration for password reset fields (safe migration - won't fail if columns exist)
+        from sqlalchemy import text, inspect
+        inspector = inspect(engine)
+        
+        # Check if users table exists and has reset_token column
+        if inspector.has_table("users"):
+            columns = [col['name'] for col in inspector.get_columns("users")]
+            
+            # Add reset_token column if it doesn't exist
+            if 'reset_token' not in columns:
+                with engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN reset_token VARCHAR"))
+                    print("✅ Added reset_token column to users table")
+            
+            # Add reset_token_expires column if it doesn't exist
+            if 'reset_token_expires' not in columns:
+                with engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP WITH TIME ZONE"))
+                    print("✅ Added reset_token_expires column to users table")
+            
+            # Create index if it doesn't exist
+            indexes = [idx['name'] for idx in inspector.get_indexes("users")]
+            if 'idx_users_reset_token' not in indexes:
+                try:
+                    with engine.begin() as conn:
+                        conn.execute(text("CREATE INDEX idx_users_reset_token ON users(reset_token)"))
+                        print("✅ Created index on reset_token")
+                except Exception as e:
+                    print(f"⚠️ Index may already exist: {e}")
+            
+            print("✅ Password reset migration completed")
+        
     except Exception as e:
-        print(f"⚠️ Warning: Could not create tables on startup: {e}")
+        print(f"⚠️ Warning: Could not create tables/migrations on startup: {e}")
         print("Tables will be created on first database access")
 
 @app.get("/health")
