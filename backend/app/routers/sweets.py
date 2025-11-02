@@ -173,22 +173,29 @@ def delete_sweet(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
+    print(f"🗑️ delete_sweet called: sweet_id={sweet_id}, current_user={current_user.username} (ID: {current_user.id})", flush=True)
     db_sweet = db.query(Sweet).filter(Sweet.id == sweet_id).first()
     if not db_sweet:
+        print(f"❌ Sweet {sweet_id} not found", flush=True)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Sweet not found"
         )
     
+    print(f"🔍 Sweet found: {db_sweet.name}, created_by_user_id={db_sweet.created_by_user_id}", flush=True)
+    
     # Check if this sweet was created by a different admin
     if db_sweet.created_by_user_id and db_sweet.created_by_user_id != current_user.id:
+        print(f"❌ Ownership check failed: {db_sweet.created_by_user_id} != {current_user.id}", flush=True)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete sweets that you created"
         )
     
+    print(f"✅ Ownership verified, deleting sweet {db_sweet.name}", flush=True)
     db.delete(db_sweet)
     db.commit()
+    print(f"✅ Sweet deleted successfully", flush=True)
     return None
 
 @router.get("/purchase-history", response_model=List[PurchaseHistoryResponse])

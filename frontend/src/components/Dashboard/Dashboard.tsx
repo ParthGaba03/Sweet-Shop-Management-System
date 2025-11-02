@@ -141,7 +141,9 @@ const Dashboard: React.FC = () => {
       await axios.delete(getApiUrl(`/api/sweets/${id}/`));
       fetchSweets();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Delete failed');
+      const errorMsg = err.response?.data?.detail || 'Delete failed';
+      alert(errorMsg);
+      console.error('Delete error:', err);
     }
   };
 
