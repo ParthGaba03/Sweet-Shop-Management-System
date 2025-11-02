@@ -397,9 +397,9 @@ const Dashboard: React.FC = () => {
                 key={sweet.id}
                 sweet={sweet}
                 onPurchase={handlePurchaseClick}
-                onRestock={isAdmin() ? handleRestock : undefined}
-                onEdit={isAdmin() ? handleEdit : undefined}
-                onDelete={isAdmin() ? handleDelete : undefined}
+                onRestock={isAdmin() && sweet.created_by_user_id === user?.id ? handleRestock : undefined}
+                onEdit={isAdmin() && sweet.created_by_user_id === user?.id ? handleEdit : undefined}
+                onDelete={isAdmin() && sweet.created_by_user_id === user?.id ? handleDelete : undefined}
                 isAdmin={isAdmin()}
               />
             ))}

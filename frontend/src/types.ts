@@ -4,6 +4,7 @@ export interface Sweet {
   category: string;
   price: string;
   quantity: number;
+  created_by_user_id?: number | null;
   created_at: string;
   updated_at: string;
 }

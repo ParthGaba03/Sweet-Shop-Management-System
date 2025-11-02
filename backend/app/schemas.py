@@ -86,6 +86,7 @@ class SweetUpdate(BaseModel):
 
 class SweetResponse(SweetBase):
     id: int
+    created_by_user_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
     
