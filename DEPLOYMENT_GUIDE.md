@@ -124,14 +124,22 @@ postgresql://postgres:password@xxxxx.proxy.rlwy.net:56520/railway
 
 **Note:** अगर Root Directory set नहीं करेंगे, तो Railway root folder से scan करेगा और "could not determine how to build" error आएगा!
 
-#### 2.3 Set Environment Variables
+#### 2.3 Set Environment Variables (⚠️ बहुत ज़रूरी!)
+
 Go to **Variables** tab and add:
 
-**Important:** अगर Database और Backend दोनों Railway पर हैं:
-- Railway **automatically** `DATABASE_URL` add कर देता है (जब आप database को same project में link करते हैं)
-- आपको manually copy-paste करने की ज़रूरत नहीं!
+**⚠️ Critical:** अगर `DATABASE_URL` set नहीं है, तो application crash होगा!
 
-**अगर manually add करना हो तो:**
+**Option A: Automatic (अगर Database linked है)**
+- Railway **automatically** `DATABASE_URL` add कर सकता है
+- Database service को backend service से **link** करें
+- Settings → Connections में check करें
+
+**Option B: Manual (अगर automatic नहीं हो रहा)**
+
+1. **PostgreSQL Database** → **Variables** tab → `DATABASE_URL` copy करें
+2. **Backend Service** → **Variables** tab → Add करें:
+
 ```
 DATABASE_URL=postgresql://postgres:password@postgres.railway.internal:5432/railway
 SECRET_KEY=your-super-secret-key-change-this-in-production-min-32-chars
@@ -141,7 +149,11 @@ DEBUG=False
 ALLOWED_ORIGINS=http://localhost:3000,https://your-frontend.vercel.app
 ```
 
-**Note:** `DATABASE_URL` में Private URL (`.railway.internal`) use करें, Public URL नहीं।
+**Important Notes:**
+- `DATABASE_URL` - **Private URL** use करें (`.railway.internal`), Public URL नहीं!
+- `SECRET_KEY` - Strong key generate करें: `openssl rand -hex 32`
+- `ALLOWED_ORIGINS` - आपका frontend URL add करें (comma-separated)
+- **Save** करने के बाद **Redeploy** करें!
 
 **Important Notes:**
 - Generate a strong `SECRET_KEY`: Use `openssl rand -hex 32` or [randomkeygen.com](https://randomkeygen.com)
