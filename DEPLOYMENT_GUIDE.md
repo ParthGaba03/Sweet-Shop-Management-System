@@ -157,8 +157,8 @@ Railway कभी-कभी Python 3.13 use करता है जो `pydantic
 In **Settings** → **Deploy** tab:
 
 1. **Root Directory**: `backend` (बहुत ज़रूरी!)
-2. **Build Command**: (खाली छोड़ दें - Railway auto-detect करेगा)
-   - या manually: `pip install -r requirements.txt`
+2. **Build Command**: (खाली छोड़ दें - Railway/Nixpacks automatically detect करेगा)
+   - Nixpacks automatically `requirements.txt` detect करेगा और install करेगा
 3. **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
 **⚠️ Important:** 
