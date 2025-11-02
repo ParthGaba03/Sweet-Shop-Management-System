@@ -61,11 +61,32 @@ This guide will help you deploy:
 4. Click **"Add Database"** → Select **"PostgreSQL"**
 5. Wait for database to provision
 6. Click on database → Go to **"Variables"** tab
-7. Copy the `DATABASE_URL` (you'll need this later)
+7. **Important:** आपको यहां 2 URLs दिखेंगे:
+   - `DATABASE_URL` (Private/Internal) - जैसे: `postgresql://...@postgres.railway.internal:5432/railway`
+   - `DATABASE_URL_PUBLIC` या `Public URL` - जैसे: `postgresql://...@xxxxx.proxy.rlwy.net:56520/railway`
+
+**कौन सा URL use करें?**
+
+### अगर Backend भी Railway पर deploy हो रहा है:
+✅ **`DATABASE_URL` (Private/Internal)** use करें
+- Railway के services एक-दूसरे के साथ private network में communicate करते हैं
+- यह तेज़ और ज्यादा secure होता है
+- Format: `postgresql://postgres:password@postgres.railway.internal:5432/railway`
+
+postgresql://postgres:IaOCaRrwoAHBxCVIjywUWDMZSxcSbjwg@postgres.railway.internal:5432/railway
+
+### अगर Backend दूसरे platform पर है (Render, Heroku, etc.):
+✅ **`DATABASE_URL_PUBLIC` (Public URL)** use करें
+- External connections के लिए ज़रूरी है
+- Format: `postgresql://postgres:password@xxxxx.proxy.rlwy.net:PORT/railway`
 
 **Example DATABASE_URL format:**
 ```
-postgresql://postgres:password@hostname:5432/railway
+# Private (Railway to Railway):
+postgresql://postgres:password@postgres.railway.internal:5432/railway
+
+# Public (External platforms):
+postgresql://postgres:password@xxxxx.proxy.rlwy.net:56520/railway
 ```
 
 ### Option B: Supabase (Free PostgreSQL)
@@ -88,33 +109,61 @@ postgresql://postgres:password@hostname:5432/railway
 4. Choose your repository
 5. Railway will auto-detect it's a Python project
 
-#### 2.2 Configure Backend
-1. Railway should auto-detect `backend/` folder
-2. If not, go to **Settings** → Set **Root Directory** to `backend`
-3. Railway will auto-detect:
-   - Python version
-   - Requirements from `requirements.txt`
+#### 2.2 Configure Backend (⚠️ बहुत Important!)
+
+**⚠️ यह step मिस न करें - 90% errors इसी से होती हैं!**
+
+1. **Settings** tab → **General** section पर जाएं
+2. **Root Directory** field में `backend` type करें (exact spelling)
+3. **Save** button click करें
+4. Page refresh करें और verify करें Root Directory = `backend` है
+5. Railway अब automatically:
+   - Python version detect करेगा (`requirements.txt` से)
+   - Build करेगा
+   - Deploy करेगा
+
+**Note:** अगर Root Directory set नहीं करेंगे, तो Railway root folder से scan करेगा और "could not determine how to build" error आएगा!
 
 #### 2.3 Set Environment Variables
 Go to **Variables** tab and add:
 
+**Important:** अगर Database और Backend दोनों Railway पर हैं:
+- Railway **automatically** `DATABASE_URL` add कर देता है (जब आप database को same project में link करते हैं)
+- आपको manually copy-paste करने की ज़रूरत नहीं!
+
+**अगर manually add करना हो तो:**
 ```
-DATABASE_URL=postgresql://postgres:password@hostname:5432/railway
+DATABASE_URL=postgresql://postgres:password@postgres.railway.internal:5432/railway
 SECRET_KEY=your-super-secret-key-change-this-in-production-min-32-chars
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 DEBUG=False
+ALLOWED_ORIGINS=http://localhost:3000,https://your-frontend.vercel.app
 ```
+
+**Note:** `DATABASE_URL` में Private URL (`.railway.internal`) use करें, Public URL नहीं।
 
 **Important Notes:**
 - Generate a strong `SECRET_KEY`: Use `openssl rand -hex 32` or [randomkeygen.com](https://randomkeygen.com)
 - Use the `DATABASE_URL` from Step 1
 - `DEBUG=False` in production
 
+**⚠️ Python Version Fix (अगर pydantic-core build error आए):**
+Railway कभी-कभी Python 3.13 use करता है जो `pydantic-core` के साथ compatible नहीं है। 
+- **Variables** tab में add करें: `PYTHON_VERSION=3.12.7`
+- या `backend/runtime.txt` file में `python-3.12.7` होना चाहिए
+
 #### 2.4 Configure Build & Start Commands
-In **Settings** → **Deploy**:
-- **Build Command**: `pip install -r requirements.txt`
-- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+In **Settings** → **Deploy** tab:
+
+1. **Root Directory**: `backend` (बहुत ज़रूरी!)
+2. **Build Command**: (खाली छोड़ दें - Railway auto-detect करेगा)
+   - या manually: `pip install -r requirements.txt`
+3. **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+**⚠️ Important:** 
+- Root Directory **अवश्य** `backend` set करें
+- अगर Root Directory गलत है, तो "Error creating build plan" error आएगा
 
 #### 2.5 Deploy
 1. Click **"Deploy"** button
@@ -287,6 +336,9 @@ REACT_APP_API_URL=https://your-backend-url.railway.app
 ---
 
 ## 🐛 Troubleshooting
+
+**⚠️ Railway Build Error Fix:**
+अगर "Error creating build plan" error आ रहा है, तो `RAILWAY_TROUBLESHOOTING.md` देखें - detailed solutions हैं!
 
 ### Backend Issues:
 
