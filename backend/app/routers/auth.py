@@ -99,13 +99,11 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
     db.commit()
     
-    # In production, send email with reset link here
-    # For now, return token in response (development/testing only)
-    reset_link = f"/reset-password?token={reset_token}"
-    
+    # Always return token in response so frontend can automatically show reset form
+    # In production, you would send email, but we still return token for seamless UX
     return {
-        "message": "Password reset instructions have been sent to your email.",
-        "reset_token": reset_token if settings.DEBUG else None  # Only show in debug mode
+        "message": "Email verified. Please enter your new password.",
+        "reset_token": reset_token  # Always return token so frontend can auto-switch to reset form
     }
 
 @router.post("/reset-password", response_model=dict)

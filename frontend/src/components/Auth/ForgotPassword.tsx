@@ -6,15 +6,16 @@ import '../Auth/Auth.css';
 
 const ForgotPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const urlToken = searchParams.get('token');
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [resetToken, setResetToken] = useState<string>(urlToken || ''); // Store token in state
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<'request' | 'reset'>(token ? 'reset' : 'request');
+  const [step, setStep] = useState<'request' | 'reset'>(urlToken ? 'reset' : 'request');
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,16 +25,17 @@ const ForgotPassword: React.FC = () => {
 
     try {
       const response = await axios.post(getApiUrl('/api/auth/forgot-password'), { email });
-      setSuccess(response.data.message);
       
-      // If in development/debug mode, show token
+      // If token is returned (email exists in database), automatically show reset form
       if (response.data.reset_token) {
-        setSuccess(`${response.data.message}\n\nReset Token: ${response.data.reset_token}\n\nUse this token to reset your password.`);
-        // Auto-populate reset form if token provided
-        setTimeout(() => {
-          setStep('reset');
-          setEmail(''); // Clear email field
-        }, 2000);
+        // Store token in state
+        setResetToken(response.data.reset_token);
+        // Immediately switch to reset password form
+        setStep('reset');
+        setSuccess('Please enter your new password below.');
+      } else {
+        // Email not found, show generic message
+        setSuccess(response.data.message);
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to send reset link. Please try again.');
@@ -57,7 +59,7 @@ const ForgotPassword: React.FC = () => {
       return;
     }
 
-    if (!token) {
+    if (!resetToken) {
       setError('Reset token is missing. Please request a new password reset.');
       return;
     }
@@ -66,7 +68,7 @@ const ForgotPassword: React.FC = () => {
 
     try {
       await axios.post(getApiUrl('/api/auth/reset-password'), {
-        token,
+        token: resetToken,
         new_password: newPassword,
       });
       setSuccess('Password reset successful! Redirecting to login...');
