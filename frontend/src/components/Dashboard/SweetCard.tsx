@@ -4,10 +4,11 @@ import './SweetCard.css';
 
 interface SweetCardProps {
   sweet: Sweet;
-  onPurchase: (id: number, quantity?: number) => void;
+  onPurchase: (sweet: Sweet) => void;
   onRestock?: (id: number, quantity: number) => void;
   onEdit?: (sweet: Sweet) => void;
   onDelete?: (id: number) => void;
+  isAdmin?: boolean;
 }
 
 const SweetCard: React.FC<SweetCardProps> = ({
@@ -16,6 +17,7 @@ const SweetCard: React.FC<SweetCardProps> = ({
   onRestock,
   onEdit,
   onDelete,
+  isAdmin = false,
 }) => {
   const [restockQuantity, setRestockQuantity] = useState('');
 
@@ -31,13 +33,15 @@ const SweetCard: React.FC<SweetCardProps> = ({
       </div>
 
       <div className="card-actions">
-        <button
-          className="btn btn-success"
-          onClick={() => onPurchase(sweet.id, 1)}
-          disabled={isOutOfStock}
-        >
-          Purchase
-        </button>
+        {!isAdmin && (
+          <button
+            className="btn btn-success"
+            onClick={() => onPurchase(sweet)}
+            disabled={isOutOfStock}
+          >
+            Purchase
+          </button>
+        )}
 
         {onRestock && (
           <div className="restock-section">

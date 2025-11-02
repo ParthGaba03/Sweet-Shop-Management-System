@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import SweetCard from './SweetCard';
 import SweetModal from './SweetModal';
+import PurchaseModal from './PurchaseModal';
 import { Sweet } from '../../types';
 import { getApiUrl } from '../../config';
 import '../Dashboard/Dashboard.css';
@@ -18,10 +19,26 @@ const Dashboard: React.FC = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingSweet, setEditingSweet] = useState<Sweet | null>(null);
+  const [allCategories, setAllCategories] = useState<string[]>([]); // Store all categories separately
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [purchasingSweet, setPurchasingSweet] = useState<Sweet | null>(null);
 
   useEffect(() => {
     fetchSweets();
+    fetchAllCategories();
   }, []);
+
+  const fetchAllCategories = async () => {
+    try {
+      // Fetch all sweets to get all categories (without filters)
+      const response = await axios.get(getApiUrl('/api/sweets/'));
+      const allSweets = response.data as Sweet[];
+      const categories = Array.from(new Set(allSweets.map(s => s.category)));
+      setAllCategories(categories);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
 
   const fetchSweets = async () => {
     try {
@@ -61,10 +78,20 @@ const Dashboard: React.FC = () => {
     return () => clearTimeout(debounce);
   }, [searchTerm, categoryFilter, minPrice, maxPrice]);
 
-  const handlePurchase = async (id: number, quantity: number = 1) => {
+  const handlePurchaseClick = (sweet: Sweet) => {
+    // Only allow purchase for non-admin users
+    if (!isAdmin()) {
+      setPurchasingSweet(sweet);
+      setShowPurchaseModal(true);
+    }
+  };
+
+  const handlePurchase = async (sweet: Sweet, quantity: number) => {
     try {
-      await axios.post(getApiUrl(`/api/sweets/${id}/purchase`), { quantity });
+      await axios.post(getApiUrl(`/api/sweets/${sweet.id}/purchase`), { quantity });
       fetchSweets();
+      setShowPurchaseModal(false);
+      setPurchasingSweet(null);
     } catch (err: any) {
       alert(err.response?.data?.detail || 'Purchase failed');
     }
@@ -140,7 +167,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const categories = Array.from(new Set(sweets.map(s => s.category)));
 
   return (
     <div>
@@ -174,7 +200,7 @@ const Dashboard: React.FC = () => {
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
             <option value="">All Categories</option>
-            {categories.map(cat => (
+            {allCategories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
@@ -220,10 +246,11 @@ const Dashboard: React.FC = () => {
               <SweetCard
                 key={sweet.id}
                 sweet={sweet}
-                onPurchase={handlePurchase}
+                onPurchase={handlePurchaseClick}
                 onRestock={isAdmin() ? handleRestock : undefined}
                 onEdit={isAdmin() ? handleEdit : undefined}
                 onDelete={isAdmin() ? handleDelete : undefined}
+                isAdmin={isAdmin()}
               />
             ))}
           </div>
@@ -237,6 +264,17 @@ const Dashboard: React.FC = () => {
               setEditingSweet(null);
             }}
             onSave={handleSave}
+          />
+        )}
+
+        {showPurchaseModal && purchasingSweet && (
+          <PurchaseModal
+            sweet={purchasingSweet}
+            onClose={() => {
+              setShowPurchaseModal(false);
+              setPurchasingSweet(null);
+            }}
+            onConfirm={(quantity) => handlePurchase(purchasingSweet, quantity)}
           />
         )}
       </div>
