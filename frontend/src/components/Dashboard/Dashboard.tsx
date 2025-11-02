@@ -252,18 +252,18 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          {isAdmin() && (
+        {isAdmin() && (
             <>
               <div className="admin-actions" style={{ borderTop: 'none', paddingTop: 0, margin: 0 }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setEditingSweet(null);
-                    setShowModal(true);
-                  }}
-                >
-                  + Add New Sweet
-                </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setEditingSweet(null);
+                setShowModal(true);
+              }}
+            >
+              + Add New Sweet
+            </button>
               </div>
               <button
                 className="btn"

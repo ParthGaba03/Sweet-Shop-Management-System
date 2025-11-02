@@ -432,7 +432,33 @@ The commit history demonstrates:
 - ✅ CORS properly configured for cross-origin requests
 - ✅ Automatic database migrations on backend startup
 
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+### How I Deployed This Project
+
+I deployed this application using a modern cloud stack:
+
+**Backend & Database: Railway.app**
+1. Created Railway account and new project
+2. Added PostgreSQL database service
+3. Deployed backend from GitHub repository
+4. Configured Root Directory as `backend`
+5. Set environment variables:
+   - `DATABASE_URL` - Private Railway database URL
+   - `SECRET_KEY` - Strong JWT secret
+   - `ALLOWED_ORIGINS` - CORS configuration for frontend
+   - `PYTHON_VERSION` - Fixed to 3.12.7 for compatibility
+
+**Frontend: Vercel**
+1. Connected GitHub repository to Vercel
+2. Configured Root Directory as `frontend`
+3. Set environment variable: `REACT_APP_API_URL` pointing to Railway backend
+4. Enabled automatic deployments on push to main branch
+
+**Key Challenges Solved:**
+- Fixed Python version compatibility issues with pydantic-core
+- Resolved CORS errors by configuring ALLOWED_ORIGINS
+- Implemented automatic database migrations on startup
+- Configured Nixpacks for Railway deployment
+- Handled foreign key cascade issues in sweet deletion
 
 ## 🎓 Learning Outcomes
 
