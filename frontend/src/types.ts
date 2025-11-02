@@ -15,4 +15,14 @@ export interface User {
   role: string;
 }
 
+export interface PurchaseHistory {
+  id: number;
+  sweet_name: string;
+  category: string;
+  price: string;
+  quantity: number;
+  total_price: string;
+  purchased_at: string;
+}
+
 

@@ -97,3 +97,15 @@ class PurchaseRequest(BaseModel):
 
 class RestockRequest(BaseModel):
     quantity: int
+
+class PurchaseHistoryResponse(BaseModel):
+    id: int
+    sweet_name: str
+    category: str
+    price: Decimal
+    quantity: int
+    total_price: Decimal
+    purchased_at: datetime
+    
+    class Config:
+        from_attributes = True

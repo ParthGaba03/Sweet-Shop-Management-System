@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 class User(Base):
@@ -24,5 +25,22 @@ class Sweet(Base):
     quantity = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class PurchaseHistory(Base):
+    __tablename__ = "purchase_history"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sweet_id = Column(Integer, ForeignKey("sweets.id"), nullable=False)
+    sweet_name = Column(String, nullable=False)  # Store name at time of purchase
+    category = Column(String, nullable=False)  # Store category at time of purchase
+    price = Column(Numeric(10, 2), nullable=False)  # Store price at time of purchase
+    quantity = Column(Integer, nullable=False)
+    total_price = Column(Numeric(10, 2), nullable=False)
+    purchased_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    user = relationship("User", backref="purchases")
+    sweet = relationship("Sweet", backref="purchases")
 
 

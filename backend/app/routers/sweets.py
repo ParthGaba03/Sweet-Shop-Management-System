@@ -4,10 +4,10 @@ from sqlalchemy import or_, and_
 from decimal import Decimal
 from typing import List, Optional
 from app.database import get_db
-from app.models import Sweet
+from app.models import Sweet, PurchaseHistory
 from app.schemas import (
     SweetCreate, SweetUpdate, SweetResponse,
-    PurchaseRequest, RestockRequest
+    PurchaseRequest, RestockRequest, PurchaseHistoryResponse
 )
 from app.dependencies import get_current_user, require_admin
 from app.models import User
@@ -97,6 +97,20 @@ def purchase_sweet(
         )
     
     db_sweet.quantity -= purchase_data.quantity
+    
+    # Save purchase history
+    total_price = db_sweet.price * purchase_data.quantity
+    purchase_record = PurchaseHistory(
+        user_id=current_user.id,
+        sweet_id=db_sweet.id,
+        sweet_name=db_sweet.name,
+        category=db_sweet.category,
+        price=db_sweet.price,
+        quantity=purchase_data.quantity,
+        total_price=total_price
+    )
+    db.add(purchase_record)
+    
     db.commit()
     db.refresh(db_sweet)
     print(f"✅ Purchase successful: {db_sweet.name} quantity now {db_sweet.quantity}", flush=True)
@@ -160,4 +174,15 @@ def delete_sweet(
     db.delete(db_sweet)
     db.commit()
     return None
+
+@router.get("/purchase-history", response_model=List[PurchaseHistoryResponse])
+def get_purchase_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get purchase history for the current user"""
+    purchases = db.query(PurchaseHistory).filter(
+        PurchaseHistory.user_id == current_user.id
+    ).order_by(PurchaseHistory.purchased_at.desc()).all()
+    return purchases
 
