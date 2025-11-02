@@ -1,0 +1,79 @@
+from pydantic import BaseModel, EmailStr, Field, field_validator  # <-- Added 'field_validator'
+from typing import Optional
+from decimal import Decimal
+from datetime import datetime
+
+class UserBase(BaseModel):
+    username: str
+    email: EmailStr
+
+class UserCreate(UserBase):
+    """
+    This is the corrected UserCreate schema.
+    We removed max_length from Field() and added a custom validator
+    to check the BYTE length of the password.
+    """
+    password: str = Field(..., min_length=8) # <-- Removed max_length=72
+
+    @field_validator('password')
+    @classmethod
+    def validate_password_byte_length(cls, v: str) -> str:
+        """Custom validator to check password byte length for bcrypt."""
+        
+        # Encode the password string into bytes (using UTF-8)
+        password_bytes = v.encode('utf-8')
+        
+        # Check the length of the byte array
+        if len(password_bytes) > 72:
+            # This error will be caught by FastAPI and returned as a 422
+            raise ValueError('Password cannot be more than 72 bytes.')
+            
+        # If valid, return the original password string
+        return v
+
+class UserResponse(UserBase):
+    id: int
+    role: str
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenWithUser(Token):
+    user: UserResponse
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+class SweetBase(BaseModel):
+    name: str
+    category: str
+    price: Decimal
+    quantity: int
+
+class SweetCreate(SweetBase):
+    pass
+
+class SweetUpdate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
+    price: Optional[Decimal] = None
+    quantity: Optional[int] = None
+
+class SweetResponse(SweetBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class PurchaseRequest(BaseModel):
+    quantity: int = 1
+
+class RestockRequest(BaseModel):
+    quantity: int
