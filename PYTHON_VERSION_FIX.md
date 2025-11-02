@@ -11,9 +11,23 @@ Railway automatically Python 3.13.9 use कर रहा है, लेकिन
 
 ---
 
-## ✅ Solution: Python 3.12 Force करें
+## ✅ Solution 1: pip Command Fix (सबसे Important!)
 
-### Method 1: Environment Variable (सबसे आसान!)
+**अगर "pip: command not found" error आ रहा है:**
+
+1. Railway → Service → **Settings** → **Deploy** tab
+2. **Build Command** update करें:
+   ```
+   python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt
+   ```
+3. **Save** करें और **Redeploy** करें
+
+**या Variables में:**
+- `BUILD_COMMAND` = `python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt`
+
+---
+
+## ✅ Solution 2: Python 3.12 Force करें
 
 1. Railway Dashboard → Service → **Variables** tab
 2. **"New Variable"** button click करें
