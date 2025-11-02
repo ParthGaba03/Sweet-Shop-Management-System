@@ -317,6 +317,7 @@ SECRET_KEY=your-very-long-random-secret-key-minimum-32-characters
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 DEBUG=False
+ALLOWED_ORIGINS=http://localhost:3000,https://your-frontend.vercel.app
 ```
 
 ### Frontend Environment Variables (Vercel/Netlify):
