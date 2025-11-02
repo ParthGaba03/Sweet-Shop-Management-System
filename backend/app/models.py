@@ -45,6 +45,6 @@ class PurchaseHistory(Base):
     
     # Relationships
     user = relationship("User", backref="purchases")
-    sweet = relationship("Sweet", backref="purchases")
+    sweet = relationship("Sweet", backref="purchases", cascade="save-update")
 
 

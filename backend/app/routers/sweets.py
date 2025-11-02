@@ -193,6 +193,11 @@ def delete_sweet(
         )
     
     print(f"✅ Ownership verified, deleting sweet {db_sweet.name}", flush=True)
+    
+    # First delete related purchase history to avoid foreign key constraint violation
+    purchase_count = db.query(PurchaseHistory).filter(PurchaseHistory.sweet_id == sweet_id).delete()
+    print(f"🗑️ Deleted {purchase_count} purchase history records", flush=True)
+    
     db.delete(db_sweet)
     db.commit()
     print(f"✅ Sweet deleted successfully", flush=True)
