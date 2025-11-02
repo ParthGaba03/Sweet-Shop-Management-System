@@ -14,7 +14,7 @@ class UserCreate(UserBase):
     to check the BYTE length of the password.
     """
     password: str = Field(..., min_length=8) # <-- Removed max_length=72
-    role: Optional[str] = Field(default="user", description="User role: 'user' or 'admin' (for testing purposes)")
+    role: Optional[str] = Field(default="user", description="User role: 'user' or 'admin'. Admin has full management access.")
 
     @field_validator('password')
     @classmethod

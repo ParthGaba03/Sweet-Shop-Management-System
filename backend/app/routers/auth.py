@@ -32,6 +32,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     # Create new user
     hashed_password = get_password_hash(user_data.password)
     # Use role from user_data if provided, otherwise default to "user"
+    # Role is saved directly to database - no manual update needed
     user_role = user_data.role if hasattr(user_data, 'role') and user_data.role else "user"
     db_user = User(
         username=user_data.username,

@@ -69,7 +69,7 @@ const Register: React.FC = () => {
             <small style={{ color: '#666', fontSize: '0.85em' }}>Minimum 8 characters</small>
           </div>
           <div className="form-group">
-            <label htmlFor="role">Account Type (for testing)</label>
+            <label htmlFor="role">Account Type</label>
             <select
               id="role"
               value={role}
@@ -82,11 +82,11 @@ const Register: React.FC = () => {
                 fontSize: '16px'
               }}
             >
-              <option value="user">User (View & Purchase)</option>
-              <option value="admin">Admin (Full Access)</option>
+              <option value="user">User - View & Purchase Sweets</option>
+              <option value="admin">Admin - Full Management Access</option>
             </select>
-            <small style={{ color: '#666', fontSize: '0.85em', fontStyle: 'italic' }}>
-              Select Admin for testing admin features (add/edit/delete sweets)
+            <small style={{ color: '#666', fontSize: '0.85em' }}>
+              Admin accounts can add, edit, delete, and restock sweets. User accounts can view and purchase.
             </small>
           </div>
           {error && <div className="error">{error}</div>}
