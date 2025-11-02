@@ -246,28 +246,28 @@ View detailed coverage report in `backend/htmlcov/index.html`
 ## 📸 Screenshots
 
 ### Authentication & Registration
-![Registration](screenshots/01-register.png)
+![Registration](screenshots/05-register.png)
 *User and admin registration with role selection*
 
 ### User Dashboard
-![User Dashboard](screenshots/02-dashboard-user.png)
+![User Dashboard](screenshots/06-user-dashboard.png)
 *Main dashboard with search, filters, and sweet inventory*
 
-![User Dashboard Search](screenshots/08-search.png)
+![User Dashboard Search](screenshots/09-search.png)
 *Search functionality for sweets*
 
 ### Purchase Features
-![Purchase Modal](screenshots/04-purchase-modal.png)
+![Purchase Modal](screenshots/07-purchase-modal.png)
 *Detailed purchase confirmation before transaction*
 
-![User Purchase History](screenshots/05-purchase-history-user.png)
+![User Purchase History](screenshots/08-user-purchase-history.png)
 *User purchase tracking with total spent*
 
 ### Admin Features
-![Admin Dashboard](screenshots/03-dashboard-admin.png)
+![Admin Dashboard](screenshots/01-admin-dashboard.png)
 *Admin view with full CRUD operations and purchase history*
 
-![Edit Sweet Modal](screenshots/07-edit-modal.png)
+![Edit Sweet Modal](screenshots/04-edit-modal.png)
 *Admin sweet management interface*
 
 ![Admin Purchase History](screenshots/10-admin-purchase-history.png)
