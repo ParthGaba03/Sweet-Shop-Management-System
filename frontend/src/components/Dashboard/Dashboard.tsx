@@ -348,10 +348,10 @@ const Dashboard: React.FC = () => {
                           {purchase.quantity}
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right', color: '#666' }}>
-                          ${parseFloat(purchase.price).toFixed(2)}
+                          ₹{parseFloat(purchase.price).toFixed(2)}
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#667eea' }}>
-                          ${parseFloat(purchase.total_price).toFixed(2)}
+                          ₹{parseFloat(purchase.total_price).toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -363,7 +363,7 @@ const Dashboard: React.FC = () => {
                           Total Spent:
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right', fontWeight: '700', color: '#667eea', fontSize: '18px' }}>
-                          ${purchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
+                          ₹{purchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
                         </td>
                       </tr>
                     </tfoot>
@@ -375,7 +375,7 @@ const Dashboard: React.FC = () => {
                           Total Revenue:
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right', fontWeight: '700', color: '#667eea', fontSize: '18px' }}>
-                          ${adminPurchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
+                          ₹{adminPurchaseHistory.reduce((sum, p) => sum + parseFloat(p.total_price), 0).toFixed(2)}
                         </td>
                       </tr>
                     </tfoot>

@@ -55,7 +55,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ sweet, onClose, onConfirm
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#666', fontWeight: '500' }}>Price per unit:</span>
-                <span style={{ color: '#333', fontWeight: '600' }}>${price.toFixed(2)}</span>
+                <span style={{ color: '#333', fontWeight: '600' }}>₹{price.toFixed(2)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#666', fontWeight: '500' }}>Available Stock:</span>
@@ -105,10 +105,10 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ sweet, onClose, onConfirm
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '18px', fontWeight: '600' }}>Total Price:</span>
-                <span style={{ fontSize: '24px', fontWeight: '700' }}>${totalPrice.toFixed(2)}</span>
+                <span style={{ fontSize: '24px', fontWeight: '700' }}>₹{totalPrice.toFixed(2)}</span>
               </div>
               <div style={{ fontSize: '14px', opacity: 0.9, marginTop: '4px' }}>
-                {quantity} {quantity === 1 ? 'unit' : 'units'} × ${price.toFixed(2)}
+                {quantity} {quantity === 1 ? 'unit' : 'units'} × ₹{price.toFixed(2)}
               </div>
             </div>
 

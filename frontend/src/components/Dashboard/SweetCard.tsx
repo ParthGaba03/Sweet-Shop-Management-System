@@ -27,7 +27,7 @@ const SweetCard: React.FC<SweetCardProps> = ({
     <div className="sweet-card">
       <h3>{sweet.name}</h3>
       <div className="category">{sweet.category}</div>
-      <div className="price">${parseFloat(sweet.price).toFixed(2)}</div>
+      <div className="price">₹{parseFloat(sweet.price).toFixed(2)}</div>
       <div className={`quantity ${isOutOfStock ? 'out-of-stock' : ''}`}>
         {isOutOfStock ? 'Out of Stock' : `Stock: ${sweet.quantity}`}
       </div>
